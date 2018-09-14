@@ -73,3 +73,19 @@ func TestDocument(t *testing.T) {
 	}
 	doTests(t, tests)
 }
+
+func TestMermaid(t *testing.T){
+	data:="```mermaid\n\nsequenceDiagram\n    participant Alice\n    participant Bob\n    Alice->>John: Hello John, how are you?\n    loop Healthcheck\n        John->>John: Fight against hypochondria\n    end\n    Note right of John: Rational thoughts <br/>prevail...\n    John-->>Alice: Great!\n    John->>Bob: How about you?\n    Bob-->>John: Jolly good!\n```\n`"
+	opt := Options{Extensions: commonExtensions | EXTENSION_JOIN_LINES}
+	renderer := HtmlRenderer(commonHtmlFlags, "", "")
+	result:=MarkdownOptions([]byte(data),renderer, opt)
+	t.Log(string(result))
+}
+
+func TestCode(t *testing.T) {
+	data := "``` mermaid\nfunc foo() bool {\n\treturn true;\n}\n```\n`"
+	opt := Options{Extensions: commonExtensions | EXTENSION_JOIN_LINES}
+	renderer := HtmlRenderer(commonHtmlFlags, "", "")
+	result := MarkdownOptions([]byte(data), renderer, opt)
+	t.Log(string(result))
+}

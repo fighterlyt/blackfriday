@@ -257,21 +257,34 @@ func (options *Html) HRule(out *bytes.Buffer) {
 
 func (options *Html) BlockCode(out *bytes.Buffer, text []byte, info string) {
 	doubleSpace(out)
-
+	println("BlockCode")
 	endOfLang := strings.IndexAny(info, "\t ")
 	if endOfLang < 0 {
 		endOfLang = len(info)
 	}
 	lang := info[:endOfLang]
+	println(string(text), info, lang)
+	println("info", info)
+	println("lang", lang)
 	if len(lang) == 0 || lang == "." {
 		out.WriteString("<pre><code>")
 	} else {
-		out.WriteString("<pre><code class=\"language-")
-		attrEscape(out, []byte(lang))
-		out.WriteString("\">")
+		if lang == "mermaid" {
+			out.WriteString("<div class=\"mermaid\"")
+		} else {
+			out.WriteString("<pre><code class=\"language-")
+			attrEscape(out, []byte(lang))
+			out.WriteString("\">")
+		}
+
 	}
 	attrEscape(out, text)
-	out.WriteString("</code></pre>\n")
+	if lang == "mermaid" {
+		out.WriteString("<div>")
+	} else {
+		out.WriteString("</code></pre>\n")
+
+	}
 }
 
 func (options *Html) BlockQuote(out *bytes.Buffer, text []byte) {
@@ -694,7 +707,10 @@ func (options *Html) DocumentHeader(out *bytes.Buffer) {
 	}
 	out.WriteString("</head>\n")
 	out.WriteString("<body>\n")
-
+	out.WriteString(`  <script src="https://unpkg.com/mermaid@7.1.0/dist/mermaid.js"></script>
+	<script>
+		mermaid.initialize({startOnLoad: true, theme: 'forest'});
+		</script>`)
 	options.tocMarker = out.Len()
 }
 

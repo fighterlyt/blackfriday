@@ -663,6 +663,7 @@ func isFenceLine(data []byte, info *string, oldmarker string, newlineOptional bo
 // or 0 otherwise. It writes to out if doRender is true, otherwise it has no side effects.
 // If doRender is true, a final newline is mandatory to recognize the fenced code block.
 func (p *parser) fencedCodeBlock(out *bytes.Buffer, data []byte, doRender bool) int {
+
 	var infoString string
 	beg, marker := isFenceLine(data, &infoString, "", false)
 	if beg == 0 || beg >= len(data) {
@@ -685,6 +686,7 @@ func (p *parser) fencedCodeBlock(out *bytes.Buffer, data []byte, doRender bool) 
 		// copy the current line
 		end := skipUntilChar(data, beg, '\n') + 1
 
+		println("fence",end,len(data))
 		// did we reach the end of the buffer without a closing marker?
 		if end >= len(data) {
 			return 0
@@ -696,8 +698,10 @@ func (p *parser) fencedCodeBlock(out *bytes.Buffer, data []byte, doRender bool) 
 		}
 		beg = end
 	}
-
+println("fence",doRender)
 	if doRender {
+		println("fence",p.r)
+
 		p.r.BlockCode(out, work.Bytes(), infoString)
 	}
 
@@ -735,6 +739,7 @@ func (p *parser) table(out *bytes.Buffer, data []byte) int {
 
 	return i
 }
+
 
 // check if the specified position is preceded by an odd number of backslashes
 func isBackslashEscaped(data []byte, i int) bool {
@@ -1013,7 +1018,7 @@ func (p *parser) code(out *bytes.Buffer, data []byte) int {
 	}
 
 	work.WriteByte('\n')
-
+	println("1017")
 	p.r.BlockCode(out, work.Bytes(), "")
 
 	return i
@@ -1223,7 +1228,7 @@ gatherlines:
 				sublist = raw.Len()
 			}
 
-		// is this a nested prefix header?
+			// is this a nested prefix header?
 		case p.isPrefixHeader(chunk):
 			// if the header is not indented, it is not nested in the list
 			// and thus ends the list
@@ -1233,9 +1238,9 @@ gatherlines:
 			}
 			*flags |= LIST_ITEM_CONTAINS_BLOCK
 
-		// anything following an empty line is only part
-		// of this item if it is indented 4 spaces
-		// (regardless of the indentation of the beginning of the item)
+			// anything following an empty line is only part
+			// of this item if it is indented 4 spaces
+			// (regardless of the indentation of the beginning of the item)
 		case containsBlankLine && indent < 4:
 			if *flags&LIST_TYPE_DEFINITION != 0 && i < len(data)-1 {
 				// is the next item still a part of this list?
@@ -1254,7 +1259,7 @@ gatherlines:
 			}
 			break gatherlines
 
-		// a blank line means this should be parsed as a block
+			// a blank line means this should be parsed as a block
 		case containsBlankLine:
 			*flags |= LIST_ITEM_CONTAINS_BLOCK
 		}
